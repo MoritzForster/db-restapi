@@ -32,14 +32,14 @@ async function main() {
     config = Configuration.readFileAsJSON(configFileName);
 
     // Retrieve environment variables for user and system information
-    let userId: string = eval("process.env." + config.env.systemUser); 
-    let computerId: string = eval("process.env." + config.env.systemName); 
+    let userId: string = eval("process.env." + config.env.system_user); 
+    let computerId: string = eval("process.env." + config.env.system_name); 
     console.log(`Hello ${userId} on system ${computerId}`);
 
     // Set up SQL configuration using environment variables
-    config.sqlConfig.database = eval("process.env." + config.env.dbName); 
-    config.sqlConfig.user = eval("process.env." + config.env.dbUser); 
-    config.sqlConfig.password = eval("process.env." + config.env.dbPassword); 
+    config.sqlConfig.database = eval("process.env." + config.env.dbname); 
+    config.sqlConfig.user = eval("process.env." + config.env.dbuser); 
+    config.sqlConfig.password = eval("process.env." + config.env.dbpw); 
 
     const port: number = 4000; 
     const app: express.Application = express(); // Create an Express application

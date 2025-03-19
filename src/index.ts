@@ -127,7 +127,7 @@ async function main() {
         try {
             let sqlCommand: string =
                 `SELECT 
-                    SUM(partcount) AS total_parts
+                COUNT(DISTINCT(partcount)) AS total_parts
                 FROM robot3data
                 WHERE timestamp BETWEEN '${start}' AND '${end}'`; // Query total parts
             console.log(sqlCommand); // Log the SQL command

@@ -1,0 +1,263 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Documentation</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        header {
+            background-color: #0078d7;
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        header h1 {
+            margin: 0;
+            font-size: 2rem;
+        }
+        main {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1, h2 {
+            color: #0078d7;
+        }
+        section {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        section h2 {
+            margin-top: 0;
+        }
+        label {
+            display: block;
+            margin: 0.5rem 0 0.2rem;
+            font-weight: bold;
+        }
+        input, button {
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 100%;
+            max-width: 300px;
+        }
+        button {
+            background-color: #0078d7;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #005a9e;
+        }
+        pre {
+            background: #f4f4f9;
+            padding: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        ul {
+            padding-left: 1.5rem;
+        }
+        footer {
+            text-align: center;
+            padding: 1rem;
+            background-color: #0078d7;
+            color: white;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+    <script>
+        async function fetchAPI(endpoint, startId, endId, resultId) {
+            const start = document.getElementById(startId).value;
+            const end = document.getElementById(endId).value;
+            const url = `/${endpoint}?start=${start}&end=${end}`;
+            const response = await fetch(url);
+            const data = await response.json();
+            console.log(data);
+            document.getElementById(resultId).innerText = JSON.stringify(data, null, 2);
+        }
+
+        async function getData(url)
+        {
+            const response = await fetch(url);
+            return await response.json();
+        }
+
+        async function testAPI()
+        {
+            let u = "http://127.0.0.1:4000/filter/";
+            let ttable = parseInt (document.getElementById("whichTable").value, 10);
+            if (ttable < 1)
+                ttable = 1;
+            u = u + '?last='+ttable.toString();
+            console.log(u);
+            let j = await getData(u);
+            console.log(j);
+            
+            // Clear existing table rows
+            const table = document.getElementById("data-table");
+            table.innerHTML = `
+                <tr>
+                    <th>Part Count</th>
+                    <th>Initialized</th>
+                    <th>Torque1</th>
+                    <th>Torque2</th>
+                    <th>Torque3</th>
+                    <th>Torque4</th>
+                    <th>Paused</th>
+                    <th>PosW</th>
+                    <th>PosX</th>
+                    <th>PosY</th>
+                    <th>PosZ</th>
+                    <th>Running</th>
+                    <th>Speed</th>
+                    <th>Violation</th>
+                    <th>Timestamp</th>
+                </tr>
+            `;
+
+            // Populate table with response data
+            j.forEach(item => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${item.partcount}</td>
+                    <td>${item.initialized}</td>
+                    <td>${item.torque1}</td>
+                    <td>${item.torque2}</td>
+                    <td>${item.torque3}</td>
+                    <td>${item.torque4}</td>
+                    <td>${item.paused}</td>
+                    <td>${item.posw}</td>
+                    <td>${item.posx}</td>
+                    <td>${item.posy}</td>
+                    <td>${item.posz}</td>
+                    <td>${item.running}</td>
+                    <td>${item.speed}</td>
+                    <td>${item.violation}</td>
+                    <td>${new Date(item.timestamp).toLocaleString()}</td>
+                `;
+                table.appendChild(row);
+            });
+        }
+    </script>
+</head>
+<body>
+    <header>
+        <h1>API Documentation and Testing</h1>
+    </header>
+    <main>
+        <section>
+            <h2>Introduction</h2>
+            <p>Welcome to the API documentation for our RESTful service. This page provides detailed information about the available endpoints, how to use them, and allows you to test them directly from this page.</p>
+            <p>The API is hosted locally and can be accessed at <code>http://127.0.0.1:4000</code>.</p>
+        </section>
+
+        <section>
+            <h2>How to Use the API</h2>
+            <p>Each API endpoint supports optional query parameters:</p>
+            <ul>
+                <li><code>start</code>: Start timestamp in ISO format (e.g., <code>2023-03-01T00:00:00Z</code>).</li>
+                <li><code>end</code>: End timestamp in ISO format (e.g., <code>2023-03-02T00:00:00Z</code>).</li>
+                <li><code>last</code>: Number of rows to fetch (only for the <code>/filter</code> endpoint).</li>
+            </ul>
+            <p>Use the forms below to test each endpoint by providing the required parameters and clicking the corresponding button.</p>
+        </section>
+
+        <section>
+            <h2>Filtered Data API</h2>
+            <p>This API fetches a specified number of rows from the database. It is useful for retrieving the latest data entries.</p>
+            <p><strong>Endpoint:</strong> <code>/filter</code></p>
+            <p><strong>Query Parameter:</strong></p>
+            <ul>
+                <li><code>last</code>: The number of rows to fetch (e.g., <code>?last=5</code>).</li>
+            </ul>
+            <label for="whichTable">Number of Rows:</label>
+            <input type="number" id="whichTable" value="5">
+            <button onclick="testAPI()">Fetch Filtered Data</button>
+            <table border="1" width="100%" id="data-table">
+                <tr>
+                    <th>Part Count</th>
+                    <th>Initialized</th>
+                    <th>Torque1</th>
+                    <th>Torque2</th>
+                    <th>Torque3</th>
+                    <th>Torque4</th>
+                    <th>Paused</th>
+                    <th>PosW</th>
+                    <th>PosX</th>
+                    <th>PosY</th>
+                    <th>PosZ</th>
+                    <th>Running</th>
+                    <th>Speed</th>
+                    <th>Violation</th>
+                    <th>Timestamp</th>
+                </tr>
+            </table>
+        </section>
+
+        <section>
+            <h2>Runtime API</h2>
+            <p>Fetch the total runtime of the machine within a specified time range. The runtime is calculated based on the intervals where the machine was running.</p>
+            <label for="runtimeStart">Start Time:</label>
+            <input type="datetime-local" id="runtimeStart">
+            <label for="runtimeEnd">End Time:</label>
+            <input type="datetime-local" id="runtimeEnd">
+            <button onclick="fetchAPI('runtime', 'runtimeStart', 'runtimeEnd', 'runtimeResult')">Test Runtime API</button>
+            <pre id="runtimeResult"></pre>
+        </section>
+
+        <section>
+            <h2>Torque API</h2>
+            <p>Fetch torque data for the machine within a specified time range. The data includes torque values for different axes.</p>
+            <label for="torqueStart">Start Time:</label>
+            <input type="datetime-local" id="torqueStart">
+            <label for="torqueEnd">End Time:</label>
+            <input type="datetime-local" id="torqueEnd">
+            <button onclick="fetchAPI('torque', 'torqueStart', 'torqueEnd', 'torqueResult')">Test Torque API</button>
+            <pre id="torqueResult"></pre>
+        </section>
+
+        <section>
+            <h2>Parts API</h2>
+            <p>Fetch the total number of parts produced within a specified time range.</p>
+            <label for="partsStart">Start Time:</label>
+            <input type="datetime-local" id="partsStart">
+            <label for="partsEnd">End Time:</label>
+            <input type="datetime-local" id="partsEnd">
+            <button onclick="fetchAPI('parts', 'partsStart', 'partsEnd', 'partsResult')">Test Parts API</button>
+            <pre id="partsResult"></pre>
+        </section>
+
+        <section>
+            <h2>Violations API</h2>
+            <p>Fetch the number of violations along with their timestamps within a specified time range.</p>
+            <label for="violationsStart">Start Time:</label>
+            <input type="datetime-local" id="violationsStart">
+            <label for="violationsEnd">End Time:</label>
+            <input type="datetime-local" id="violationsEnd">
+            <button onclick="fetchAPI('violations', 'violationsStart', 'violationsEnd', 'violationsResult')">Test Violations API</button>
+            <pre id="violationsResult"></pre>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2023 API Documentation</p>
+    </footer>
+</body>
+</html>

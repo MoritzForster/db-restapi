@@ -1,0 +1,17 @@
+{
+    "sqlConfig": {
+        "host": "192.168.0.211",
+        "port": 3306,
+        "database": "xxx",
+        "user": "xxx",
+        "password": "xxx"
+   },
+    "env": {
+        "dbname": "POSTGRESDBNAME",
+        "dbuser": "POSTGRESUSER",
+        "dbpw": "POSTGRESPW",
+        "system_user": "USERNAME",
+        "system_name": "COMPUTERNAME"
+    }
+           
+}   

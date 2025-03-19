@@ -94,9 +94,15 @@ async function main() {
     // Route to fetch runtime data
     apiRouter.get('/runtime', async (req: Request, res: Response) => {
         var apiResponse: object = {}; 
-        var start = req.query.start ? req.query.start : new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(); // Default to 24 hours ago
-        var end = req.query.end ? req.query.end : new Date().toISOString(); // Default to now
+        var start = req.query.start ? req.query.start as string : new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(); // Default to 24 hours ago
+        var end = req.query.end ? req.query.end as string : new Date().toISOString(); // Default to now
+
         try {
+            // Calculate the difference between start and end in seconds
+            const startDate = new Date(start);
+            const endDate = new Date(end);
+            const timeDifferenceInSeconds = Math.floor((endDate.getTime() - startDate.getTime()) / 1000);
+
             let sqlCommand: string = 
                 `WITH running_intervals AS (
                     SELECT 
@@ -111,7 +117,16 @@ async function main() {
                 FROM running_intervals
                 WHERE running = true AND end_time IS NOT NULL`; // Query runtime data
             console.log(sqlCommand); // Log the SQL command
-            apiResponse = await executeQuery(sqlCommand); // Execute the query
+            const queryResult = await executeQuery(sqlCommand); // Execute the query
+
+            // Extract total_runtime from query result
+            const totalRuntime = queryResult[0]?.total_runtime || 0;
+
+            // Format the response
+            apiResponse = {
+                total_runtime: totalRuntime,
+                timeDifferenceInSeconds: timeDifferenceInSeconds
+            };
         } catch (err) {
             console.log('Error at Database command' + err); // Log errors
         }
